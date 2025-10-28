@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="flex items-center justify-between mb-4">
+  <div class="flex items-center gap-3">
+    <form method="get" action="/">
+      <label class="text-sm">تصفية حسب الفرع</label>
+      <select name="branch" onchange="this.form.submit()" class="p-2 border rounded">
+        <option value="">كل الفروع</option>
+        {% for b in branches %}
+          <option value="{{ b.id }}" {% if selected_branch==b.id %}selected{% endif %}>{{ b.name }}</option>
+        {% endfor %}
+      </select>
+    </form>
+    <a href="/add_report" class="px-3 py-2 bg-blue-500 text-white rounded">إضافة تقرير جديد</a>
+    <a href="/export_excel{% if selected_branch %}?branch={{ selected_branch }}{% endif %}" class="px-3 py-2 border rounded">تصدير Excel</a>
+  </div>
+</div>
+
+<div class="bg-white rounded shadow overflow-x-auto">
+  <table class="min-w-full">
+    <thead class="bg-gray-100 text-sm">
+      <tr>
+        <th class="p-3">اسم العميل</th>
+        <th class="p-3">رقم الهاتف</th>
+        <th class="p-3">رقم التقرير</th>
+        <th class="p-3">المبلغ (OMR)</th>
+        <th class="p-3">الفرع</th>
+        <th class="p-3">التاريخ</th>
+        <th class="p-3">ملاحظات</th>
+      </tr>
+    </thead>
+    <tbody class="text-sm">
+      {% for r in reports %}
+      <tr class="border-t">
+        <td class="p-3">{{ r.client.name }}</td>
+        <td class="p-3">{{ r.client.phone }}</td>
+        <td class="p-3">{{ r.report_number }}</td>
+        <td class="p-3">{{ '%.2f'|format(r.amount) }}</td>
+        <td class="p-3">{{ r.client.branch.name if r.client.branch else '' }}</td>
+        <td class="p-3">{{ r.date.strftime('%Y-%m-%d') }}</td>
+        <td class="p-3">{{ r.note }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="mt-3 text-right">
+  <div class="inline-block bg-white p-3 rounded shadow">
+    <strong>المجموع الكلي:</strong> {{ '%.2f'|format(total) }} OMR
+  </div>
+</div>
+
+{% endblock %}
