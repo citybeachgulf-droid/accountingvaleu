@@ -29,6 +29,7 @@ class ValuationReport(db.Model):
     amount = db.Column(db.Float, default=0.0)
     date = db.Column(db.Date, default=date.today)
     note = db.Column(db.Text)
+    employee_name = db.Column(db.String(200))
 
     def __repr__(self):
         return f'<ValuationReport {self.report_number}>'

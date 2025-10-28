@@ -20,6 +20,7 @@
   <table class="min-w-full">
     <thead class="bg-gray-100 text-sm">
       <tr>
+        <th class="p-3">اسم الموظف</th>
         <th class="p-3">اسم العميل</th>
         <th class="p-3">رقم الهاتف</th>
         <th class="p-3">رقم التقرير</th>
@@ -32,6 +33,7 @@
     <tbody class="text-sm">
       {% for r in reports %}
       <tr class="border-t">
+        <td class="p-3">{{ r.employee_name or '' }}</td>
         <td class="p-3">{{ r.client.name }}</td>
         <td class="p-3">{{ r.client.phone }}</td>
         <td class="p-3">{{ r.report_number }}</td>

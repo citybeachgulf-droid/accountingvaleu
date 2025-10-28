@@ -19,8 +19,22 @@ def create_app():
     from . import models
 
     with app.app_context():
-        # create some default branches if none exist
+        # create tables
         db.create_all()
+        # lightweight auto-migration for new columns (SQLite only)
+        try:
+            from sqlalchemy import inspect
+            from .models import ValuationReport
+            inspector = inspect(db.engine)
+            cols = {c['name'] for c in inspector.get_columns('valuation_report')}
+            if 'employee_name' not in cols:
+                # SQLite supports ALTER TABLE ADD COLUMN without defaults
+                with db.engine.connect() as conn:
+                    conn.execute(db.text('ALTER TABLE valuation_report ADD COLUMN employee_name VARCHAR(200)'))
+        except Exception:
+            # best-effort; ignore if not applicable or already applied
+            pass
+        # create some default branches if none exist
         from .models import Branch
         if Branch.query.count() == 0:
             b1 = Branch(name='الفرع الرئيسي', location='المدينة')
