@@ -103,3 +103,35 @@ def export_excel():
 
     filename = 'valuation_reports.xlsx'
     return send_file(stream, as_attachment=True, download_name=filename, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+
+
+@bp.route('/add_branch', methods=['GET', 'POST'])
+def add_branch():
+    if request.method == 'POST':
+        name = (request.form.get('name') or '').strip()
+        location = (request.form.get('location') or '').strip()
+        next_page = request.args.get('next') or request.form.get('next')
+
+        if not name:
+            flash('اسم الفرع مطلوب', 'warning')
+            return render_template('add_branch.html', name=name, location=location, next_page=next_page)
+
+        # optional: prevent duplicates by name
+        existing = Branch.query.filter(Branch.name == name).first()
+        if existing:
+            flash('هذا الفرع موجود بالفعل', 'warning')
+            if next_page == 'add_report':
+                return redirect(url_for('main.add_report'))
+            return redirect(url_for('main.index'))
+
+        branch = Branch(name=name, location=location)
+        db.session.add(branch)
+        db.session.commit()
+
+        flash('تم إضافة الفرع بنجاح', 'success')
+        if next_page == 'add_report':
+            return redirect(url_for('main.add_report'))
+        return redirect(url_for('main.index'))
+
+    next_page = request.args.get('next')
+    return render_template('add_branch.html', next_page=next_page)
