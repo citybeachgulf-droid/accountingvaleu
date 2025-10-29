@@ -34,6 +34,7 @@ def index():
 def add_report():
     branches = Branch.query.order_by(Branch.name).all()
     if request.method == 'POST':
+        employee_name = request.form.get('employee_name', '').strip()
         client_name = request.form.get('client_name', '').strip()
         client_phone = request.form.get('client_phone', '').strip()
         report_number = request.form.get('report_number', '').strip()
@@ -56,7 +57,14 @@ def add_report():
             db.session.commit()
 
         # create report
-        report = ValuationReport(report_number=report_number or 'N/A', client_id=client.id, amount=amount, date=date.today(), note=note)
+        report = ValuationReport(
+            report_number=report_number or 'N/A',
+            client_id=client.id,
+            amount=amount,
+            date=date.today(),
+            note=note,
+            employee_name=employee_name or None
+        )
         db.session.add(report)
         db.session.commit()
 
@@ -83,11 +91,12 @@ def export_excel():
     ws = wb.active
     ws.title = 'Reports'
 
-    headers = ['اسم العميل', 'رقم الهاتف', 'رقم التقرير', 'المبلغ', 'الفرع', 'التاريخ', 'ملاحظات']
+    headers = ['اسم الموظف', 'اسم العميل', 'رقم الهاتف', 'رقم التقرير', 'المبلغ', 'الفرع', 'التاريخ', 'ملاحظات']
     ws.append(headers)
 
     for r in reports:
         ws.append([
+            r.employee_name or '',
             r.client.name,
             r.client.phone,
             r.report_number,
