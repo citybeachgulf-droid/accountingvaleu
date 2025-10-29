@@ -23,14 +23,14 @@ def create_app():
         db.create_all()
         # lightweight auto-migration for new columns (SQLite only)
         try:
-            from sqlalchemy import inspect
+            from sqlalchemy import inspect, text
             from .models import ValuationReport
             inspector = inspect(db.engine)
             cols = {c['name'] for c in inspector.get_columns('valuation_report')}
             if 'employee_name' not in cols:
                 # SQLite supports ALTER TABLE ADD COLUMN without defaults
                 with db.engine.connect() as conn:
-                    conn.execute(db.text('ALTER TABLE valuation_report ADD COLUMN employee_name VARCHAR(200)'))
+                    conn.execute(text('ALTER TABLE valuation_report ADD COLUMN employee_name VARCHAR(200)'))
         except Exception:
             # best-effort; ignore if not applicable or already applied
             pass
